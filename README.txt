@@ -10,4 +10,3 @@ ii) run: init_plot_optimal_results to plot the synchronization results for optim
 iii) In general: in order to apply the AISA method to any problem, you can call the another problem code in cost_function file.
 
 Good Luck!
-Prof.Selami Beyhan
