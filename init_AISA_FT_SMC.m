@@ -1,4 +1,4 @@
-%% AISA BASED OPTIMIZATION of FINITE-TIME SMC of CHAOTIC SYSTEMS
+%% AISA BASED OPTIMIZATION of FINITE-TIME SMC of MARKOV CHAOTIC SYSTEMS
 % January-2023
 % Written by Prof. Selami Beyhan
 % You can send you feedbacks to selami.beyhan@gmai.com
