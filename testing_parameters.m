@@ -1,6 +1,6 @@
 %% TESTING OPTIMAL PARAMETERS
 clc, clear all, close all
-global a_s % Markov parameter
+global a_markov % Markov parameter
 load best_par;
 
 %% Optimized Parameters
@@ -15,8 +15,24 @@ gamma2 = best_par(8)
 gamma3 = best_par(9)
 
 %% Simulation time
-Ts = 0.01;                        % Sampling time
+Ts = 0.001;                       % Sampling time
 T  = 30;                          % Simulation period
+N = T/Ts;                         % Samples
+
+%% Markov process to generate transition of modes
+transition_probabilities = [0.3 0.7; 0.7 0.3];
+starting_value = 1;
+chain_length = T/2;
+chain = zeros(1,chain_length);
+chain(1) = starting_value;
+mode = chain(1)*ones(N/chain_length,1)';
+for i = 2:chain_length
+    this_step_distribution = transition_probabilities(chain(i-1),:);
+    cumulative_distribution = cumsum(this_step_distribution);
+    r = rand();
+    chain(i) = min(find(cumulative_distribution>r,1));
+    mode = [mode chain(i)*ones(N/chain_length,1)']; 
+end
 
 %% Initial state dynamics (x,y,z of HR neuron)
 Xm   = [3;-2;1];                  % Master system initial state
@@ -25,7 +41,8 @@ Umax = 100;                        % Maximum control input to apply a state
 e0   = Xm-Xs;                     % Initial error
 
 %% Chaotic system parameters to use in error dynamics below
-a = 1; b = 3; c = 1; d = 5; r = 0.006; s = 4; xr = -1.6; 
+a_values = [1.2;0.8]; a = 1; b = 3; d = 5; r = 0.006; s = 4; 
+
 %% Finite time calculation for x state
 s1_0 = k1*e0(1);
 V0 = 0.5*s1_0^2;
@@ -41,14 +58,9 @@ for n = 1:T/Ts
     %% Continuous time
     t(n) = n*Ts;
     
-    %% Change of Markov Parameter
-    if (0<n && n<=0.4*T/Ts)
-        a_s = 1;   % general value
-    elseif (0.4*T/Ts && n<0.7*T/Ts)
-        a_s = 1.2; % large value
-    else
-        a_s = 0.8; % small value
-    end
+    %% Change of Markov Parameter   
+    a_markov = a_values(mode(n));
+       
     %% Synchronization error
     e(:,n) = Xs(:,n)-Xm(:,n);
     

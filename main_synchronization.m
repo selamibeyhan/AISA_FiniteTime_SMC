@@ -1,6 +1,24 @@
 function cost_value = main_synchronization(Par)
-global a_s % Markov parameter
+global a_markov
+%% Simulation time
+Ts = 0.001;                       % Sampling time
+T  = 10;                          % Simulation period
+N = T/Ts;                         % Samples
 
+%% Markov process to generate transition of modes
+transition_probabilities = [0.3 0.7; 0.7 0.3];
+starting_value = 1;
+chain_length = T/2;
+chain = zeros(1,chain_length);
+chain(1) = starting_value;
+mode = chain(1)*ones(N/chain_length,1)';
+for i = 2:chain_length
+    this_step_distribution = transition_probabilities(chain(i-1),:);
+    cumulative_distribution = cumsum(this_step_distribution);
+    r = rand();
+    chain(i) = min(find(cumulative_distribution>r,1));
+    mode = [mode chain(i)*ones(N/chain_length,1)'];
+end
 %% Optimized Parameters
 k1 = Par(1); k2 = Par(2); k3 = Par(3);
 rho1 = Par(4); rho2 = Par(5); rho3 = Par(6);
@@ -13,11 +31,7 @@ Umax = 100;                         % Maximum control input to apply a state
 e0   = Xm-Xs;                       % Initial error
 
 %% Chaotic system parameters to use in error dynamics below
-a = 1; b = 3; d = 5; r = 0.006; s = 4; 
-
-%% Simulation time
-Ts = 0.001;                        % Sampling time
-T  = 10;                          % Simulation period
+a_values = [1.2;0.8]; a = 1; b = 3; d = 5; r = 0.006; s = 4;
 
 %% Main Synchronisation loop
 for n = 1:T/Ts
@@ -25,14 +39,8 @@ for n = 1:T/Ts
     t(n) = n*Ts;
     
     %% Change of Markov Parameter
-    if (0<n && n<=0.4*T/Ts)
-        a_s = 1;    % general value
-    elseif (0.4*T/Ts && n<0.7*T/Ts)
-        a_s = 1.2;  % large value
-    else
-        a_s = 0.8;  % small value
-    end
-    
+    a_markov = a_values(mode(n));
+       
     %% Synchronization error
     e(:,n) = Xs(:,n)-Xm(:,n);
     
