@@ -20,7 +20,7 @@ rng('shuffle')
 nPop    = 10;                             % Population size
 maxiter = 30;                             % Iteration number or termination criterion
 D = 9;                                    % D = dimension of problem or the number of parameters
-ub = [200 200 200 50 50 50 200 200 200];  % ub: upper bound, change according to problem
+ub = [100 100 100 10 10 10 100 100 100];  % ub: upper bound, change according to problem
 lb = 0.0*ones(1,D);                       % lb: lower bound, change according to problem
 for i=1:nPop
     Candidates(i,:) = rand(1,D).*(ub-lb)+lb;          % Random initialization
